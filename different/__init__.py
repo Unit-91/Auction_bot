@@ -1,1 +1,1 @@
-from different import emoji
+from different import auction_bot

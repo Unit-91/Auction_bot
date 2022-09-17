@@ -1,1 +1,1 @@
-from misc import auction_bot
+from misc import auction_lot

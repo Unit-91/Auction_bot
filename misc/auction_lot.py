@@ -1,22 +1,7 @@
 # import asyncio
 import time
-from my_lib.emoji import exclam_emoji, fire_emoji, push_pin_emoji, money_bag_emoji
-
-
-def form_hourse_ending(hours):
-    ending = ''
-    hours = hours % 20
-
-    if hours == 1:
-        ending = 'час'
-
-    elif hours > 1 and hours < 5:
-        ending = 'часа'
-
-    else:
-        ending = 'часов'
-
-    return ending
+from my_lib.different_funcs import get_hours_ending
+from my_lib.emojis import exclam_emoji, fire_emoji, push_pin_emoji, money_bag_emoji
 
 
 class AuctionLot():
@@ -40,16 +25,29 @@ class AuctionLot():
         self.pressing_sequence_num = 0
         self.applicant_id = None
 
-        ending = form_hourse_ending(self.auction_time)
-
         self.strings = {
             "auction duration": (
                 f'{exclam_emoji} Продолжительность аукциона - '
-                f'{self.auction_time} {ending} {exclam_emoji}'
+                f'{self.auction_time} {get_hours_ending(self.auction_time)} {exclam_emoji}'
             ),
             "start price": f'{fire_emoji} СТАРТ {self.price} ₽ {fire_emoji}',
             "lot number": f'{push_pin_emoji} Лот № {self.lot_num}',
             "current price": f'{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.current_price} ₽'
         }
 
-        self.text = None
+        self.text = (
+            f'{self.strings["auction duration"]}\n'
+            f'{self.strings["start price"]}\n\n'
+            f'{self.strings["lot number"]}\n\n'
+            f'{self.strings["current price"]}'
+        )
+
+    def change_text(self, str_key: str, string):
+        self.text = ''
+
+        for key, value in self.strings.items():
+            if key != str_key:
+                self.text += value
+            else:
+                self.text += value
+                self.text += string

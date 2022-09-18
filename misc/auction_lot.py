@@ -1,6 +1,6 @@
-# import asyncio
+import asyncio
 import time
-from my_lib.different_funcs import get_hours_ending
+from my_lib.different_funcs import get_hours_ending, conv_to_pref_format
 from my_lib.emojis import exclam_emoji, fire_emoji, push_pin_emoji, money_bag_emoji
 
 
@@ -41,3 +41,14 @@ class AuctionLot():
             f'{self.strings["lot number"]}\n\n'
             f'{self.strings["current price"]}'
         )
+
+    async def start_lot_timer(self, seconds):
+        await asyncio.sleep(seconds)
+
+    async def start_confirm_timer(self, seconds):
+        await asyncio.sleep(seconds)
+
+    def get_time_left(self):
+        time_left = conv_to_pref_format(self.end_time - int(time.time()))
+
+        return time_left

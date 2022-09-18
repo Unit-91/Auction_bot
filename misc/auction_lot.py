@@ -41,13 +41,3 @@ class AuctionLot():
             f'{self.strings["lot number"]}\n\n'
             f'{self.strings["current price"]}'
         )
-
-    def change_text(self, str_key: str, string):
-        self.text = ''
-
-        for key, value in self.strings.items():
-            if key != str_key:
-                self.text += value
-            else:
-                self.text += value
-                self.text += string

@@ -21,5 +21,4 @@ from misc.auction_lot import AuctionLot
 
 lot = AuctionLot(1, 2, 3, 4, 'FAF', 'REW', 'CVC', 'Fadg', None, None, 234324332, 43243232)
 lot2 = AuctionLot(10, 20, 30, 40, 'FAF', 'REW', 'CVC', 'Fadg', None, None, 234324332, 43243232)
-lot.change_text("lot number", f'\n{lot.current_price} ₽ Ал**\n\n')
 print(lot.text)

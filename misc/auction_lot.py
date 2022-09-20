@@ -1,10 +1,12 @@
-import asyncio
-import time
+from asycnio import sleep
+from time import time
 from my_lib.different_funcs import get_hours_ending, conv_to_pref_format
 from my_lib.emojis import exclam_emoji, fire_emoji, push_pin_emoji, money_bag_emoji
 
 
 class AuctionLot():
+    exhibited_lots = []
+
     def __init__(
         self, lot_num, auction_time, price, current_price, main_photo,
         other_photos, videos, description, bidders, winner, end_time, message_id
@@ -19,7 +21,7 @@ class AuctionLot():
         self.description = description
         self.bidders = bidders
         self.winner = winner
-        self.end_time = end_time if end_time else int(time.time() + (self.auction_time * 3600))
+        self.end_time = end_time if end_time else int(time() + (self.auction_time * 3600))
         self.message_id = message_id
 
         self.pressing_sequence_num = 0
@@ -43,12 +45,12 @@ class AuctionLot():
         )
 
     async def start_lot_timer(self, seconds):
-        await asyncio.sleep(seconds)
+        await sleep(seconds)
 
     async def start_confirm_timer(self, seconds):
-        await asyncio.sleep(seconds)
+        await sleep(seconds)
 
     def get_time_left(self):
-        time_left = conv_to_pref_format(self.end_time - int(time.time()))
+        time_left = conv_to_pref_format(self.end_time - int(time()))
 
         return time_left

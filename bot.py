@@ -1,24 +1,31 @@
-from misc.auction_lot import AuctionLot
-# from aiogram import executor
-# from create_bot import dp
-# from handlers import client, admin, other
+from create_bot import dp, data_base
+from handlers import client, admin, states, other
+from aiogram import executor
 
 
-# async def on_startup(_):
-#     print('Бот вышел в онлайн!')
+async def on_startup(_):
+    print('Бот вышел в онлайн!')
 
 
-# def main():
-#     client.register_client_handlers(dp)
-#     admin.register_admin_handlers(dp)
-#     other.register_other_handlers(dp)
+def main():
+    table_columns = (
+        'lot_number', 'auction_time', 'price', 'main_photo',
+        'other_photos', 'videos', 'description', 'end_time', 'message_id'
+    )
 
-#     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    data_base.connect()
+    data_base.create_table('ready_lots', *table_columns)
+    data_base.create_table('raffled_lots', *table_columns)
+    data_base.create_table('sold_lots', *table_columns)
+    data_base.close()
+
+    client.register_client_handlers(dp)
+    admin.register_admin_handlers(dp)
+    states.register_states_handlers(dp)
+    other.register_other_handlers(dp)
+
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
 
-# if __name__ == '__main__':
-#     main()
-
-lot = AuctionLot(1, 2, 3, 4, 'FAF', 'REW', 'CVC', 'Fadg', None, None, 234324332, 43243232)
-lot2 = AuctionLot(10, 20, 30, 40, 'FAF', 'REW', 'CVC', 'Fadg', None, None, 234324332, 43243232)
-print(lot.text)
+if __name__ == '__main__':
+    main()

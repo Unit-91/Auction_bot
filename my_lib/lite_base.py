@@ -42,6 +42,12 @@ class LiteBase:
         self.base.execute(f'CREATE TABLE IF NOT EXISTS {table_name}({columns})')
         self.base.commit()
 
+    def save_row(self, table_name, *args):
+        question_marks = self._create_insert_string(args, insert_elem='?')
+
+        self.cursor.execute(f'INSERT INTO {table_name} VALUES ({question_marks})', args)
+        self.base.commit()
+
     def load_all_rows(self, table_name):
         rows_lst = self.cursor.execute(f'SELECT * FROM {table_name}').fetchall()
 
@@ -51,12 +57,6 @@ class LiteBase:
         rows_lst = self.cursor.execute(f'SELECT * FROM {table_name} WHERE {key} == ?', (value,)).fetchall()
 
         return rows_lst
-
-    def save_row(self, table_name, *args):
-        question_marks = self._create_insert_string(args, insert_elem='?')
-
-        self.cursor.execute(f'INSERT INTO {table_name} VALUES ({question_marks})', args)
-        self.base.commit()
 
     def load_row(self, table_name, key, value):
         lst = self.cursor.execute(f'SELECT * FROM {table_name}\

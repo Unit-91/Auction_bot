@@ -8,10 +8,10 @@ class AuctionLot():
     exhibited_lots = []
 
     def __init__(
-        self, lot_num, auction_time, price, current_price, main_photo,
+        self, lot_number, auction_time, price, current_price, main_photo,
         other_photos, videos, description, bidders, winner, end_time, message_id
     ):
-        self.lot_num = lot_num
+        self.number = lot_number
         self.auction_time = auction_time
         self.price = price
         self.current_price = current_price
@@ -33,7 +33,7 @@ class AuctionLot():
                 f'{self.auction_time} {get_hours_ending(self.auction_time)} {exclam_emoji}'
             ),
             "start price": f'{fire_emoji} СТАРТ {self.price} ₽ {fire_emoji}',
-            "lot number": f'{push_pin_emoji} Лот № {self.lot_num}',
+            "lot number": f'{push_pin_emoji} Лот № {self.number}',
             "current price": f'{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.current_price} ₽'
         }
 

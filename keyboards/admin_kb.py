@@ -19,3 +19,14 @@ def make_cancel_keyboard():
     cancel_keyboard.row(empty_btn, load_cancel_btn, empty_btn)
 
     return cancel_keyboard
+
+
+def make_stop_keyboard():
+    stop_btn = KeyboardButton('/Хватит')
+    empty_btn = KeyboardButton(' ')
+    load_cancel_btn = KeyboardButton('/Отмена')
+
+    stop_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    stop_keyboard.row(empty_btn, stop_btn, empty_btn).add(load_cancel_btn)
+
+    return stop_keyboard

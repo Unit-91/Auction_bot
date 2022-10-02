@@ -29,17 +29,15 @@ def convert_list_to_string(lst=None):
         return string[:-1]
 
 
-# @dp.message_handler(commands=['admin'], is_chat_admin=True)
+# @dp.message_handler(commands=['admin'])
 async def send_admin_keyboard(message: types.Message):
-    if message.from_user.id not in FSMAdmin.admin_ids:
-        FSMAdmin.admin_ids.append(message.from_user.id)
-
-    await bot.send_message(
-        message.from_user.id,
-        'Чего надо хозяин?',
-        reply_markup=make_admin_keyboard()
-    )
-    await message.delete()
+    if message.from_user.id in FSMAdmin.admin_ids:
+        await bot.send_message(
+            message.from_user.id,
+            'Чего надо хозяин?',
+            reply_markup=make_admin_keyboard()
+        )
+        await message.delete()
 
 
 # @dp.message_handler(commands=['Загрузить_лот'], state=None)
@@ -67,8 +65,8 @@ async def load_lot_number(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
         async with state.proxy() as data:
             data['lot_number'] = message.text
-            data['additional_media'] = {
-                "photos": [],
+            data['addit_media'] = {
+                "other_photos": [],
                 "videos": []
             }
 
@@ -114,15 +112,16 @@ async def load_main_photo(message: types.Message, state: FSMContext):
 async def load_additional_media(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
 
-        if message.content_type == 'photo':
-            async with state.proxy() as data:
-                data['additional_media']["photos"].append(message.photo[-1].file_id)
-        else:
-            async with state.proxy() as data:
-                data['additional_media']["videos"].append(message.video.file_id)
-
         async with state.proxy() as data:
-            await message.reply(len(data['additional_media']))
+            if message.content_type == 'photo':
+                data['addit_media']["other_photos"].append(message.photo[-1].file_id)
+            else:
+                data['addit_media']["videos"].append(message.video.file_id)
+
+            photos_len = len(data['addit_media']["other_photos"])
+            videos_len = len(data['addit_media']["videos"])
+
+        await message.reply(photos_len + videos_len)
 
 
 # @dp.message_handler(commands=['Хватит'], state=FSMAdmin.additional_media)
@@ -143,13 +142,13 @@ async def load_description(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['description'] = message.text
 
-            photos = convert_list_to_string(data['additional_media']["photos"])
-            videos = convert_list_to_string(data['additional_media']["videos"])
+            other_photos = convert_list_to_string(data['addit_media']["other_photos"])
+            videos = convert_list_to_string(data['addit_media']["videos"])
 
             lot_tuple = (
                 int(data['lot_number']), int(data['auction_time']),
                 int(data['start_price']), data['main_photo'],
-                photos, videos, data['description'], None, None
+                other_photos, videos, data['description'], None, None
             )
 
             with LiteBase('data_base.db') as data_base:
@@ -165,7 +164,7 @@ async def load_description(message: types.Message, state: FSMContext):
 
 
 def register_states_handlers(dp: Dispatcher):
-    dp.register_message_handler(send_admin_keyboard, commands=['admin'], is_chat_admin=True)
+    dp.register_message_handler(send_admin_keyboard, commands=['admin'])
     dp.register_message_handler(start_loading_lot, commands=['Загрузить_лот'], state=None)
     dp.register_message_handler(cancel_lot_loading, state="*", commands='отмена')
     dp.register_message_handler(cancel_lot_loading, Text(equals='отмена', ignore_case=True), state="*")

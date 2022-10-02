@@ -2,15 +2,15 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.dispatcher.filters import Text
-from create_bot import bot, LiteBase
+from create_bot import bot
+from my_lib.lite_base import LiteBase
 from keyboards.admin_kb import make_admin_keyboard, make_cancel_keyboard, make_stop_keyboard
 
 
 class AdminMediaStorage():
     def __init__(self, admin_id):
         self.admin_id = admin_id
-        self.photos = []
-        self.videos = []
+        self.media = []
 
 
 class FSMAdmin(StatesGroup):
@@ -21,8 +21,7 @@ class FSMAdmin(StatesGroup):
     auction_time = State()
     price = State()
     main_photo = State()
-    other_photos = State()
-    videos = State()
+    additional_media = State()
     description = State()
 
 
@@ -114,63 +113,33 @@ async def load_main_photo(message: types.Message, state: FSMContext):
         await FSMAdmin.next()
         await bot.send_message(
             message.from_user.id,
-            'Загрузи фото альбом. Нажми хватит, если загрузил все фото',
+            'Загрузи дополнительные фото и видео. Нажми хватит если загрузил все',
             reply_markup=make_stop_keyboard()
         )
 
 
-# @dp.message_handler(content_types=['photo'], state=FSMAdmin.other_photos)
-async def load_other_photos(message: types.Message, state: FSMContext):
+# @dp.message_handler(content_types=['photo', 'video'], state=FSMAdmin().additional_media)
+async def load_additional_media(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
         for storage in FSMAdmin.admin_storages:
             if storage.admin_id == message.from_user.id:
-                storage.photos.append(message.photo[-1].file_id)
+                if message.content_type == 'photo':
+                    storage.media.append(message.photo[-1].file_id)
+                else:
+                    storage.media.append(message.video.file_id)
 
-                await message.reply(len(storage.photos))
 
-
-# @dp.message_handler(commands=['Хватит'], state=FSMAdmin.other_photos)
-async def stop_load_other_photos(message: types.Message, state: FSMContext):
+# @dp.message_handler(commands=['Хватит'], state=FSMAdmin.additional_media)
+async def stop_load_additional_media(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
-        photos = None
+        media = None
 
         for storage in FSMAdmin.admin_storages:
             if storage.admin_id == message.from_user.id:
-                photos = storage.photos
+                media = storage.media
 
         async with state.proxy() as data:
-            data['other_photos'] = photos
-
-        await FSMAdmin.next()
-
-        await bot.send_message(
-            message.from_user.id,
-            'Теперь загрузи видео альбом. Нажми хватит, если загрузил все видео',
-            reply_markup=make_stop_keyboard()
-        )
-
-
-# @dp.message_handler(content_types=['video'], state=FSMAdmin.videos)
-async def load_videos(message: types.Message, state: FSMContext):
-    if message.from_user.id in FSMAdmin.admin_ids:
-        for storage in FSMAdmin.admin_storages:
-            if storage.admin_id == message.from_user.id:
-                storage.videos.append(message.video.file_id)
-
-                await message.reply(len(storage.videos))
-
-
-# @dp.message_handler(commands=['Хватит'], state=FSMAdmin.videos)
-async def stop_load_videos(message: types.Message, state: FSMContext):
-    if message.from_user.id in FSMAdmin.admin_ids:
-        videos = None
-
-        for storage in FSMAdmin.admin_storages:
-            if storage.admin_id == message.from_user.id:
-                videos = storage.videos
-
-        async with state.proxy() as data:
-            data['videos'] = videos
+            data['additional_media'] = media
 
         await FSMAdmin.next()
 
@@ -187,23 +156,18 @@ async def load_description(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['description'] = message.text
 
-            other_photos = None
-            videos = None
+            media = None
 
             for storage in FSMAdmin.admin_storages:
                 if storage.admin_id == message.from_user.id:
-                    if storage.photos:
-                        other_photos = convert_list_to_string(storage.photos)
-
-                    if storage.videos:
-                        videos = convert_list_to_string(storage.videos)
+                    additional_media = convert_list_to_string(storage.media)
 
                     FSMAdmin.admin_storages.remove(storage)
 
             lot_tuple = (
                 int(data['lot_number']), int(data['auction_time']),
                 int(data['start_price']), data['main_photo'],
-                other_photos, videos, data['description'],
+                additional_media, data['description'],
                 None, None
             )
 
@@ -228,8 +192,6 @@ def register_states_handlers(dp: Dispatcher):
     dp.register_message_handler(load_auction_time, state=FSMAdmin.auction_time)
     dp.register_message_handler(load_start_price, state=FSMAdmin.price)
     dp.register_message_handler(load_main_photo, content_types=['photo'], state=FSMAdmin.main_photo)
-    dp.register_message_handler(load_other_photos, content_types=['photo'], state=FSMAdmin.other_photos)
-    dp.register_message_handler(stop_load_other_photos, commands=['Хватит'], state=FSMAdmin.other_photos)
-    dp.register_message_handler(load_videos, content_types=['video'], state=FSMAdmin.videos)
-    dp.register_message_handler(stop_load_videos, commands=['Хватит'], state=FSMAdmin.videos)
+    dp.register_message_handler(load_additional_media, content_types=['photo', 'video'], state=FSMAdmin.additional_media)
+    dp.register_message_handler(stop_load_additional_media, commands=['Хватит'], state=FSMAdmin.additional_media)
     dp.register_message_handler(load_description, state=FSMAdmin.description)

@@ -9,14 +9,15 @@ class AuctionLot():
 
     def __init__(
         self, lot_number, auction_time, price, current_price, main_photo,
-        additional_media, description, bidders, winner, end_time, message_id
+        other_photos, videos, description, bidders, winner, end_time, message_id
     ):
         self.number = lot_number
         self.auction_time = auction_time
         self.price = price
         self.current_price = current_price
         self.main_photo = main_photo
-        self.additional_media = additional_media
+        self.other_photos = other_photos
+        self.videos = videos
         self.description = description
         self.bidders = bidders
         self.winner = winner

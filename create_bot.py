@@ -18,7 +18,7 @@ data_base = LiteBase('data_base.db')
 def create_data_base_tables():
     lot_table_columns = (
         'lot_number', 'auction_time', 'price', 'main_photo',
-        'additional_media', 'description', 'end_time', 'message_id'
+        'other_photos', 'videos', 'description', 'end_time', 'message_id'
     )
 
     bidders_and_winner_columns = (

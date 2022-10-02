@@ -121,25 +121,28 @@ async def load_main_photo(message: types.Message, state: FSMContext):
 # @dp.message_handler(content_types=['photo', 'video'], state=FSMAdmin().additional_media)
 async def load_additional_media(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
+
         for storage in FSMAdmin.admin_storages:
+
             if storage.admin_id == message.from_user.id:
+
                 if message.content_type == 'photo':
                     storage.media.append(message.photo[-1].file_id)
                 else:
                     storage.media.append(message.video.file_id)
 
+            await message.reply(len(storage.media))
+
 
 # @dp.message_handler(commands=['Хватит'], state=FSMAdmin.additional_media)
 async def stop_load_additional_media(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
-        media = None
 
         for storage in FSMAdmin.admin_storages:
-            if storage.admin_id == message.from_user.id:
-                media = storage.media
 
-        async with state.proxy() as data:
-            data['additional_media'] = media
+            if storage.admin_id == message.from_user.id:
+                async with state.proxy() as data:
+                    data['additional_media'] = storage.media
 
         await FSMAdmin.next()
 
@@ -156,19 +159,16 @@ async def load_description(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['description'] = message.text
 
-            media = None
-
             for storage in FSMAdmin.admin_storages:
+
                 if storage.admin_id == message.from_user.id:
                     additional_media = convert_list_to_string(storage.media)
-
                     FSMAdmin.admin_storages.remove(storage)
 
             lot_tuple = (
                 int(data['lot_number']), int(data['auction_time']),
                 int(data['start_price']), data['main_photo'],
-                additional_media, data['description'],
-                None, None
+                additional_media, data['description'], None, None
             )
 
             with LiteBase('data_base.db') as data_base:

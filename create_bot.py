@@ -11,7 +11,6 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 CHAT_ID = int(os.getenv('CHAT_ID'))
 BOT_NAME = os.getenv('BOT_NAME')
-BOT_CHAT_ID = int(os.getenv('BOT_CHAT_ID'))
 
 data_base = LiteBase('data_base.db')
 

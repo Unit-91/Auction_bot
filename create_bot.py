@@ -10,6 +10,7 @@ bot = Bot(token=os.getenv('TOKEN'))
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 CHAT_ID = int(os.getenv('CHAT_ID'))
+CHAT_OWNER_ID = int(os.getenv('CHAT_OWNER_ID'))
 BOT_NAME = os.getenv('BOT_NAME')
 
 data_base = LiteBase('data_base.db')

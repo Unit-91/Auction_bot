@@ -2,14 +2,14 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.dispatcher.filters import Text
-from create_bot import bot
+from create_bot import bot, CHAT_OWNER_ID
 from my_lib.lite_base import LiteBase
+from my_lib.different_funcs import convert_list_to_string
 from keyboards.admin_kb import make_admin_keyboard, make_cancel_keyboard, make_stop_keyboard
 
 
 class FSMAdmin(StatesGroup):
-    admin_ids = []
-    admin_storages = []
+    admin_ids = [CHAT_OWNER_ID]
 
     lot_number = State()
     auction_time = State()
@@ -17,16 +17,6 @@ class FSMAdmin(StatesGroup):
     main_photo = State()
     additional_media = State()
     description = State()
-
-
-def convert_list_to_string(lst=None):
-    if lst:
-        string = ''
-
-        for item in lst:
-            string += f'{item},'
-
-        return string[:-1]
 
 
 # @dp.message_handler(commands=['admin'])

@@ -1,27 +1,34 @@
 from create_bot import dp, bot, CHAT_ID
 from handlers import client, admin, states, other
 from aiogram import executor, types
-from aiogram.dispatcher.handler import CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
+import asyncio
 
 
-class AdminsMiddleWare(BaseMiddleware):
-    admin_comands = ('/admin', '/Загрузить_лот', '/Показать_лоты')
+async def remove_id(admin_id, seconds):
+    await asyncio.sleep(seconds)
+    states.FSMAdmin.admin_ids.remove(admin_id)
+    print(states.FSMAdmin.admin_ids)
 
+
+class GetAdminsMiddleWare(BaseMiddleware):
     async def on_process_message(self, message: types.Message, data: dict):
-        if message.chat.id != CHAT_ID and message.text != '/start':
-            admins = await bot.get_chat_administrators(CHAT_ID)
+        if message.chat.id != CHAT_ID:
 
-            states.FSMAdmin.admin_ids.clear()
+            if message.text != '/start':
 
-            for item in admins:
-                states.FSMAdmin.admin_ids.append(item.user.id)
+                if message.from_user.id not in states.FSMAdmin.admin_ids:
+                    admins = await bot.get_chat_administrators(CHAT_ID)
 
-        if message.from_user.id not in states.FSMAdmin.admin_ids:
-            if message.text in self.admin_comands:
-                raise CancelHandler()
+                    for item in admins:
 
-            # if not ('-100' in str(Chat_id)):
+                        if message.from_user.id == item.user.id:
+                            states.FSMAdmin.admin_ids.append(item.user.id)
+                            print(states.FSMAdmin.admin_ids)
+                            task = asyncio.create_task(remove_id(item.user.id, 20))
+                            asyncio.gather(task)
+
+        # if not ('-100' in str(Chat_id)):
 
 
 async def on_startup(_):
@@ -34,7 +41,7 @@ def main():
     states.register_states_handlers(dp)
     other.register_other_handlers(dp)
 
-    dp.middleware.setup(AdminsMiddleWare())
+    dp.middleware.setup(GetAdminsMiddleWare())
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
 

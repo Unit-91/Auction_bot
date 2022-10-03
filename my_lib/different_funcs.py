@@ -42,6 +42,16 @@ def get_hours_ending(hours):
     return ending
 
 
+def convert_list_to_string(lst=None):
+    if lst:
+        string = ''
+
+        for item in lst:
+            string += f'{item},'
+
+        return string[:-1]
+
+
 def convert_cyrillic_letters_to_latin(string):
     transcript_symbols = [
         'a', 'b', 'v', 'g', 'd', 'e', 'zh', 'z',

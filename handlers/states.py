@@ -137,7 +137,7 @@ async def load_description(message: types.Message, state: FSMContext):
 
             lot_tuple = (
                 int(data['lot_number']), int(data['auction_time']),
-                int(data['start_price']), data['main_photo'],
+                int(data['start_price']), None, data['main_photo'],
                 other_photos, videos, data['description'], None, None
             )
 

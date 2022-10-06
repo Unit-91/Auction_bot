@@ -22,7 +22,7 @@ class LiteBase:
     def close(self):
         self.base.close()
 
-    def _create_insert_string(self, column_names: tuple, insert_elem: str = None):
+    def _create_insert_string(self, column_names, insert_elem: str = None):
         string = ''
 
         for name in column_names:
@@ -42,10 +42,16 @@ class LiteBase:
         self.base.execute(f'CREATE TABLE IF NOT EXISTS {table_name}({columns})')
         self.base.commit()
 
+    def save_rows(self, table_name, lst):
+        question_marks = self._create_insert_string(lst[0], insert_elem='?')
+
+        self.cursor.executemany(f'INSERT INTO {table_name} VALUES({question_marks})', lst)
+        self.base.commit()
+
     def save_row(self, table_name, *args):
         question_marks = self._create_insert_string(args, insert_elem='?')
 
-        self.cursor.execute(f'INSERT INTO {table_name} VALUES ({question_marks})', args)
+        self.cursor.execute(f'INSERT INTO {table_name} VALUES({question_marks})', args)
         self.base.commit()
 
     def load_all_rows(self, table_name):
@@ -59,8 +65,7 @@ class LiteBase:
         return rows_lst
 
     def load_row(self, table_name, key, value):
-        lst = self.cursor.execute(f'SELECT * FROM {table_name}\
-        WHERE {key} == ?', (value,)).fetchall()
+        lst = self.cursor.execute(f'SELECT * FROM {table_name} WHERE {key} == ?', (value,)).fetchall()
 
         if lst:
             row = lst[0]
@@ -71,14 +76,19 @@ class LiteBase:
         self.cursor.execute(f'DELETE FROM {table_name} WHERE {key} == ?', (value,))
         self.base.commit()
 
-    def update_column(self, table_name, column_name, column_value, key, value):
-        self.cursor.execute(f'UPDATE {table_name} SET {column_name} == ?\
-        WHERE {key} == ?', (column_value, value))
+    def load_all_columns(self, key, table_name):
+        tupls_list = self.cursor.execute(f'SELECT {key} FROM {table_name}').fetchall()
 
-        self.base.commit()
+        return [tpl[0] for tpl in tupls_list]
 
     def load_column(self, table_name, column_name, key, value):
         lst = self.cursor.execute(f'SELECT {column_name} FROM {table_name}\
         WHERE {key} == ?', (value,)).fetchall()
 
         return lst[0][0]
+
+    def update_column(self, table_name, column_name, column_value, key, value):
+        self.cursor.execute(f'UPDATE {table_name} SET {column_name} == ?\
+        WHERE {key} == ?', (column_value, value))
+
+        self.base.commit()

@@ -1,19 +1,19 @@
-from asycnio import sleep
 from time import time
 from my_lib.different_funcs import get_hours_ending, conv_to_pref_format
 from my_lib.emojis import exclam_emoji, fire_emoji, push_pin_emoji, money_bag_emoji
+from asyncio import sleep
 
 
 class AuctionLot():
     exhibited_lots = []
 
     def __init__(
-        self, lot_number, auction_time, price, current_price, main_photo,
+        self, lot_number, auction_time, start_price, current_price, main_photo,
         other_photos, videos, description, bidders, winner, end_time, message_id
     ):
         self.number = lot_number
         self.auction_time = auction_time
-        self.price = price
+        self.start_price = start_price
         self.current_price = current_price
         self.main_photo = main_photo
         self.other_photos = other_photos
@@ -32,9 +32,9 @@ class AuctionLot():
                 f'{exclam_emoji} Продолжительность аукциона - '
                 f'{self.auction_time} {get_hours_ending(self.auction_time)} {exclam_emoji}'
             ),
-            "start price": f'{fire_emoji} СТАРТ {self.price} ₽ {fire_emoji}',
+            "start price": f'{fire_emoji} СТАРТ {self.start_price} ₽ {fire_emoji}',
             "lot number": f'{push_pin_emoji} Лот № {self.number}',
-            "current price": f'{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.current_price} ₽'
+            "current price": f'{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.start_price} ₽'
         }
 
         self.text = (

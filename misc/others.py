@@ -1,5 +1,6 @@
 from create_bot import bot
 from my_lib.lite_base import LiteBase
+from my_lib.emojis import gold_medal_emoji, silver_medal_emoji, bronze_medal_emoji
 from keyboards.admin_kb import make_more_lot_info_keyboard, make_lot_management_keyboard
 from misc.auction_lot import AuctionLot
 
@@ -35,7 +36,7 @@ def get_lot_args(lot_category, lot_number):
                 "last_name": bidder[1],
                 "user_name": bidder[2],
                 "id": bidder[3],
-                "start_price": bidder[4]
+                "price": bidder[4]
             }
 
             for bidder in bidders
@@ -48,7 +49,7 @@ def get_lot_args(lot_category, lot_number):
             "last_name": winner[1],
             "user_name": winner[2],
             "id": winner[3],
-            "start_price": winner[4]
+            "price": winner[4]
         }
     else:
         bidders = []
@@ -56,8 +57,8 @@ def get_lot_args(lot_category, lot_number):
 
     lot_args = list(lot_data)
 
-    lot_args.insert(7, bidders)
-    lot_args.insert(8, winner)
+    lot_args.insert(8, bidders)
+    lot_args.insert(9, winner)
 
     return lot_args
 
@@ -66,6 +67,29 @@ async def show_lot(chat_id, lot_category, lot_number):
     lot_args = get_lot_args(lot_category, lot_number)
 
     lot = AuctionLot(*lot_args)
+
+    if lot_category == 'ready_lots':
+        lot.create_text()
+
+    if lot_category == 'reffled_lots':
+        bidders = ''
+        emojis = [gold_medal_emoji, silver_medal_emoji, bronze_medal_emoji]
+
+        for index, bidder in enumerate(lot.bidders[::-1]):
+            if index < 3:
+                bidders += f'\n{emojis[index]} {bidder["price"]} ₽ {bidder["first_name"]}'
+            else:
+                break
+
+        lot.create_text("lot number", bidders)
+
+    if lot_category == 'sold_lots':
+        for index, bidder in enumerate(lot.bidders[::-1]):
+            lot.text += (
+                f'{index + 1} место:\n{bidder["first_name"]}, '
+                f'{bidder["last_name"]}, {bidder["user_name"]}, '
+                f'{bidder["id"]}, {bidder["price"]} ₽\n\n'
+            )
 
     await bot.send_photo(
         chat_id,

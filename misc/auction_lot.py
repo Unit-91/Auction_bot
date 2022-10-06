@@ -14,7 +14,7 @@ class AuctionLot():
         self.number = lot_number
         self.auction_time = auction_time
         self.start_price = start_price
-        self.current_price = current_price
+        self.current_price = start_price
         self.main_photo = main_photo
         self.other_photos = other_photos
         self.videos = videos
@@ -32,17 +32,23 @@ class AuctionLot():
                 f'{exclam_emoji} Продолжительность аукциона - '
                 f'{self.auction_time} {get_hours_ending(self.auction_time)} {exclam_emoji}'
             ),
-            "start price": f'{fire_emoji} СТАРТ {self.start_price} ₽ {fire_emoji}',
-            "lot number": f'{push_pin_emoji} Лот № {self.number}',
-            "current price": f'{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.start_price} ₽'
+            "start price": f'\n{fire_emoji} СТАРТ {self.start_price} ₽ {fire_emoji}',
+            "lot number": f'\n\n{push_pin_emoji} Лот № {self.number}',
+            "current price": f'\n\n{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.current_price} ₽'
         }
 
-        self.text = (
-            f'{self.strings["auction duration"]}\n'
-            f'{self.strings["start price"]}\n\n'
-            f'{self.strings["lot number"]}\n\n'
-            f'{self.strings["current price"]}'
-        )
+        self.text = ''
+
+    def create_text(self, position=None, text_insert=None):
+        self.text = ''
+
+        for key, value in self.strings.items():
+            self.text += value
+
+            if key == position:
+                self.text += text_insert
+
+        return self.text
 
     async def start_lot_timer(self, seconds):
         await sleep(seconds)

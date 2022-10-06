@@ -63,24 +63,28 @@ def get_lot_args(lot_category, lot_number):
     return lot_args
 
 
+def show_bidders(bidders_list):
+    bidders_str = ''
+    emojis = [gold_medal_emoji, silver_medal_emoji, bronze_medal_emoji]
+
+    for index, bidder in enumerate(bidders_list):
+        if index < 3:
+            bidders_str += f'\n{emojis[index]} {bidder["price"]} ₽ {bidder["first_name"][:3]}**'
+        else:
+            break
+
+    return bidders_str
+
+
 async def show_lot(chat_id, lot_category, lot_number):
     lot_args = get_lot_args(lot_category, lot_number)
-
     lot = AuctionLot(*lot_args)
 
     if lot_category == 'ready_lots':
         lot.create_text()
 
     if lot_category == 'reffled_lots':
-        bidders = ''
-        emojis = [gold_medal_emoji, silver_medal_emoji, bronze_medal_emoji]
-
-        for index, bidder in enumerate(lot.bidders[::-1]):
-            if index < 3:
-                bidders += f'\n{emojis[index]} {bidder["price"]} ₽ {bidder["first_name"]}'
-            else:
-                break
-
+        bidders = show_bidders(lot.bidders[::-1])
         lot.create_text("lot number", bidders)
 
     if lot_category == 'sold_lots':

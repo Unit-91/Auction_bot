@@ -32,9 +32,9 @@ class AuctionLot():
                 f'{exclam_emoji} Продолжительность аукциона - '
                 f'{self.auction_time} {get_hours_ending(self.auction_time)} {exclam_emoji}'
             ),
-            "start price": f'\n{fire_emoji} СТАРТ {self.start_price} ₽ {fire_emoji}',
-            "lot number": f'\n\n{push_pin_emoji} Лот № {self.number}',
-            "current price": f'\n\n{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.current_price} ₽'
+            "start price": f'{fire_emoji} СТАРТ {self.start_price} ₽ {fire_emoji}\n',
+            "lot number": f'{push_pin_emoji} Лот № {self.number}',
+            "current price": f'\n{money_bag_emoji} ТЕКУЩАЯ ЦЕНА: {self.current_price} ₽'
         }
 
         self.text = ''
@@ -43,10 +43,10 @@ class AuctionLot():
         self.text = ''
 
         for key, value in self.strings.items():
-            self.text += value
+            self.text += f'{value}\n'
 
             if key == position:
-                self.text += text_insert
+                self.text += f'{text_insert}\n'
 
         return self.text
 

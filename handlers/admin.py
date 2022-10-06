@@ -1,9 +1,10 @@
 from aiogram import types, Dispatcher
+from create_bot import bot
 from aiogram.dispatcher.filters import Text
 from handlers.states import FSMAdmin
-from create_bot import bot
-from keyboards.admin_kb import make_categories_keyboard, make_admin_keyboard
-from misc.others import show_lot_numbers, show_lot
+from keyboards.admin_kb import make_categories_keyboard, make_admin_keyboard, make_lot_management_keyboard
+from misc.others import show_lot_numbers, get_lot_args, compose_lot_text
+from misc.auction_lot import AuctionLot
 
 
 # @dp.message_handler(commands=['Показать_лоты'])
@@ -48,9 +49,18 @@ async def show_sold_lots(message: types.Message):
 async def show_more_lot_info(callback: types.CallbackQuery):
     lot_category = callback.data.split()[1]
     lot_number = int(callback.data.split()[2])
-    chat_id = callback.message.chat.id
 
-    await show_lot(chat_id, lot_category, lot_number)
+    lot_args = get_lot_args(lot_category, lot_number)
+    lot = AuctionLot(*lot_args)
+
+    lot.text = compose_lot_text(lot, lot_category)
+
+    await bot.send_photo(
+        callback.message.chat.id,
+        photo=lot.main_photo,
+        caption=lot.text,
+        reply_markup=make_lot_management_keyboard(lot_category, lot_number)
+    )
 
 
 def register_admin_handlers(dp: Dispatcher):

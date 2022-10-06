@@ -82,6 +82,7 @@ def make_lot_management_keyboard(lot_category, lot_number):
 
     elif lot_category == 'sold_lots':
         lot_management_keyboard.row(to_ready_btn, remove_btn)
+
     else:
         lot_management_keyboard.add(remove_btn)
 

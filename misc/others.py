@@ -1,8 +1,7 @@
 from create_bot import bot
 from my_lib.lite_base import LiteBase
 from my_lib.emojis import gold_medal_emoji, silver_medal_emoji, bronze_medal_emoji
-from keyboards.admin_kb import make_more_lot_info_keyboard, make_lot_management_keyboard
-from misc.auction_lot import AuctionLot
+from keyboards.admin_kb import make_more_lot_info_keyboard
 
 
 async def show_lot_numbers(message, lot_category):
@@ -69,17 +68,14 @@ def conv_bidders_to_str(bidders_list):
 
     for index, bidder in enumerate(bidders_list):
         if index < 3:
-            bidders_str += f'\n{emojis[index]} {bidder["price"]} ₽ {bidder["first_name"][:3]}**'
+            bidders_str += f'{emojis[index]} {bidder["price"]} ₽ {bidder["first_name"][:3]}**\n'
         else:
             break
 
-    return bidders_str
+    return bidders_str[:-1]
 
 
-async def show_lot(chat_id, lot_category, lot_number):
-    lot_args = get_lot_args(lot_category, lot_number)
-    lot = AuctionLot(*lot_args)
-
+def compose_lot_text(lot, lot_category):
     if lot_category == 'ready_lots':
         lot.create_text()
 
@@ -95,9 +91,4 @@ async def show_lot(chat_id, lot_category, lot_number):
                 f'{bidder["id"]}, {bidder["price"]} ₽\n\n'
             )
 
-    await bot.send_photo(
-        chat_id,
-        photo=lot.main_photo,
-        caption=lot.text,
-        reply_markup=make_lot_management_keyboard(lot_category, lot_number)
-    )
+    return lot.text

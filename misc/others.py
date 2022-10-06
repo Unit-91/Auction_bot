@@ -63,7 +63,7 @@ def get_lot_args(lot_category, lot_number):
     return lot_args
 
 
-def show_bidders(bidders_list):
+def conv_bidders_to_str(bidders_list):
     bidders_str = ''
     emojis = [gold_medal_emoji, silver_medal_emoji, bronze_medal_emoji]
 
@@ -84,8 +84,8 @@ async def show_lot(chat_id, lot_category, lot_number):
         lot.create_text()
 
     if lot_category == 'reffled_lots':
-        bidders = show_bidders(lot.bidders[::-1])
-        lot.create_text("lot number", bidders)
+        bidders_str = conv_bidders_to_str(lot.bidders[::-1])
+        lot.create_text("lot number", bidders_str)
 
     if lot_category == 'sold_lots':
         for index, bidder in enumerate(lot.bidders[::-1]):

@@ -2,9 +2,44 @@ from aiogram import types, Dispatcher
 from create_bot import bot
 from aiogram.dispatcher.filters import Text
 from handlers.states import FSMAdmin
-from keyboards.admin_kb import make_categories_keyboard, make_admin_keyboard, make_lot_management_keyboard
-from misc.others import show_lot_numbers, get_lot_args, compose_lot_text
+from keyboards.admin_kb import make_categories_kb, make_admin_kb, make_more_lot_info_kb, make_lot_management_kb
+from misc.others import get_lot_args, conv_bidders_to_str
 from misc.auction_lot import AuctionLot
+from my_lib.lite_base import LiteBase
+
+
+async def show_lot_numbers(message, lot_category):
+    with LiteBase('data_base.db') as data_base:
+        lst = data_base.load_all_columns('lot_number', lot_category)
+
+    if lst:
+        for lot_number in lst:
+            await bot.send_message(
+                message.from_user.id,
+                text=f'Лот № {lot_number}',
+                reply_markup=make_more_lot_info_kb(lot_category, lot_number)
+            )
+    else:
+        await message.answer('В этой категории нет лотов')
+
+
+def compose_lot_text(lot, lot_category):
+    if lot_category == 'ready_lots':
+        lot.create_text()
+
+    if lot_category == 'reffled_lots':
+        bidders_str = conv_bidders_to_str(lot.bidders[::-1])
+        lot.create_text("lot number", bidders_str)
+
+    if lot_category == 'sold_lots':
+        for index, bidder in enumerate(lot.bidders[::-1]):
+            lot.text += (
+                f'{index + 1} место:\n{bidder["first_name"]}, '
+                f'{bidder["last_name"]}, {bidder["user_name"]}, '
+                f'{bidder["id"]}, {bidder["price"]} ₽\n\n'
+            )
+
+    return lot.text
 
 
 # @dp.message_handler(commands=['Показать_лоты'])
@@ -13,7 +48,7 @@ async def show_lot_categories(message: types.Message):
         await bot.send_message(
             message.from_user.id,
             'Выбери категорию лотов',
-            reply_markup=make_categories_keyboard()
+            reply_markup=make_categories_kb()
         )
 
 
@@ -23,7 +58,7 @@ async def go_back(message: types.Message):
         await bot.send_message(
             message.from_user.id,
             'Чего надо хозяин?',
-            reply_markup=make_admin_keyboard()
+            reply_markup=make_admin_kb()
         )
 
 
@@ -53,14 +88,24 @@ async def show_more_lot_info(callback: types.CallbackQuery):
     lot_args = get_lot_args(lot_category, lot_number)
     lot = AuctionLot(*lot_args)
 
-    lot.text = compose_lot_text(lot, lot_category)
-
     await bot.send_photo(
         callback.message.chat.id,
         photo=lot.main_photo,
-        caption=lot.text,
-        reply_markup=make_lot_management_keyboard(lot_category, lot_number)
+        caption=compose_lot_text(lot, lot_category),
+        reply_markup=make_lot_management_kb(lot_category, lot_number)
     )
+
+
+# @dp.callback_query_handler(Text(startswith='remove'))
+async def remove_lot(callback: types.CallbackQuery):
+    lot_category = callback.data.split()[1]
+    lot_number = int(callback.data.split()[2])
+
+    with LiteBase('data_base.db') as data_base:
+        data_base.remove_some_rows(lot_category, 'lot_number', lot_number)
+        data_base.remove_some_rows('winner', 'lot_number', lot_number)
+        data_base.remove_some_rows('bidders', 'lot_number', lot_number)
+        # Проверить удаление несуществующих bidders и winner
 
 
 def register_admin_handlers(dp: Dispatcher):
@@ -70,3 +115,4 @@ def register_admin_handlers(dp: Dispatcher):
     dp.register_message_handler(show_raffled_lots, commands=['Выставленные'])
     dp.register_message_handler(show_sold_lots, commands=['Проданные'])
     dp.register_callback_query_handler(show_more_lot_info, Text(startswith='more'))
+    dp.register_callback_query_handler(remove_lot, Text(startswith='remove'))

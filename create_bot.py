@@ -35,5 +35,9 @@ def create_data_base_tables():
         data_base.create_table('bidders', None, *bidders_and_winner_columns)
         data_base.create_table('winner', *bidders_and_winner_columns)
 
+        # data_base.save_row('bidders', 1, 'Amogus', 'Games', '@game', 54321, 12000)
+        # data_base.save_row('bidders', 1, 'Земляник', 'Докер', '@zem', 12345, 14000)
+        # data_base.save_row('winner', 1, 'Земляник', 'Докер', '@zem', 12345, 14000)
+
 
 create_data_base_tables()

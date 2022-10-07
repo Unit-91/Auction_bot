@@ -72,9 +72,13 @@ class LiteBase:
 
             return row
 
-    def remove_row(self, table_name, key, value):
+    def remove_some_rows(self, table_name, key, value):
         self.cursor.execute(f'DELETE FROM {table_name} WHERE {key} == ?', (value,))
         self.base.commit()
+
+    # def remove_row(self, table_name, key, value):
+    #     self.cursor.execute(f'DELETE FROM {table_name} WHERE {key} == ?', (value,))
+    #     self.base.commit()
 
     def load_all_columns(self, key, table_name):
         tupls_list = self.cursor.execute(f'SELECT {key} FROM {table_name}').fetchall()

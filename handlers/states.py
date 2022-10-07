@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters import Text
 from create_bot import bot, CHAT_OWNER_ID
 from my_lib.lite_base import LiteBase
 from my_lib.different_funcs import convert_list_to_string
-from keyboards.admin_kb import make_admin_keyboard, make_cancel_keyboard, make_stop_keyboard
+from keyboards.admin_kb import make_admin_kb, make_cancel_kb, make_stop_kb
 
 
 class FSMAdmin(StatesGroup):
@@ -25,7 +25,7 @@ async def send_admin_keyboard(message: types.Message):
         await bot.send_message(
             message.from_user.id,
             'Чего надо хозяин?',
-            reply_markup=make_admin_keyboard()
+            reply_markup=make_admin_kb()
         )
         await message.delete()
 
@@ -34,7 +34,7 @@ async def send_admin_keyboard(message: types.Message):
 async def start_loading_lot(message: types.Message):
     if message.from_user.id in FSMAdmin.admin_ids:
         await FSMAdmin.lot_number.set()
-        await message.reply('Напиши номер лота', reply_markup=make_cancel_keyboard())
+        await message.reply('Напиши номер лота', reply_markup=make_cancel_kb())
 
 
 # @dp.message_handler(state="*", commands='отмена')
@@ -47,7 +47,7 @@ async def cancel_lot_loading(message: types.Message, state: FSMContext):
             return
 
         await state.finish()
-        await message.reply('Загрузка лота отменена', reply_markup=make_admin_keyboard())
+        await message.reply('Загрузка лота отменена', reply_markup=make_admin_kb())
 
 
 # @dp.message_handler(state=FSMAdmin.lot_number)
@@ -94,7 +94,7 @@ async def load_main_photo(message: types.Message, state: FSMContext):
         await bot.send_message(
             message.from_user.id,
             'Загрузи дополнительные фото и видео. Нажми хватит если загрузил все',
-            reply_markup=make_stop_keyboard()
+            reply_markup=make_stop_kb()
         )
 
 
@@ -122,7 +122,7 @@ async def stop_load_additional_media(message: types.Message, state: FSMContext):
         await bot.send_message(
             message.from_user.id,
             'Загрузи полное описание',
-            reply_markup=make_cancel_keyboard()
+            reply_markup=make_cancel_kb()
         )
 
 
@@ -149,7 +149,7 @@ async def load_description(message: types.Message, state: FSMContext):
         await bot.send_message(
             message.from_user.id,
             'Лот загружен',
-            reply_markup=make_admin_keyboard()
+            reply_markup=make_admin_kb()
         )
 
 

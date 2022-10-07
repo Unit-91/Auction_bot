@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # from aiogram.types.web_app_info import WebAppInfo
 
 
-def make_admin_keyboard():
+def make_admin_kb():
     # load_lot_btn = KeyboardButton(text='/Загрузить_лот', web_app=WebAppInfo(url=''))
     load_lot_btn = KeyboardButton('/Загрузить_лот')
     show_lots_btn = KeyboardButton('/Показать_лоты')
@@ -14,7 +14,7 @@ def make_admin_keyboard():
     return admin_keyboard
 
 
-def make_cancel_keyboard():
+def make_cancel_kb():
     load_cancel_btn = KeyboardButton('/Отмена')
     empty_btn = KeyboardButton(' ')
 
@@ -24,7 +24,7 @@ def make_cancel_keyboard():
     return cancel_keyboard
 
 
-def make_stop_keyboard():
+def make_stop_kb():
     stop_btn = KeyboardButton('/Хватит')
     empty_btn = KeyboardButton(' ')
     load_cancel_btn = KeyboardButton('/Отмена')
@@ -35,7 +35,7 @@ def make_stop_keyboard():
     return stop_keyboard
 
 
-def make_categories_keyboard():
+def make_categories_kb():
     ready_lots_btn = KeyboardButton('/Готовые_к_аукциону')
     raffled_lots_btn = KeyboardButton('/Выставленные')
     sold_lots_btn = KeyboardButton('/Проданные')
@@ -47,7 +47,7 @@ def make_categories_keyboard():
     return categories_keyboard
 
 
-def make_more_lot_info_keyboard(lot_category, lot_number):
+def make_more_lot_info_kb(lot_category, lot_number):
     lot_num_btn = InlineKeyboardButton(
         text='Подробнее',
         callback_data=f'more {lot_category} {lot_number}'
@@ -59,7 +59,7 @@ def make_more_lot_info_keyboard(lot_category, lot_number):
     return inline_keyboard
 
 
-def make_lot_management_keyboard(lot_category, lot_number):
+def make_lot_management_kb(lot_category, lot_number):
     for_auction_btn = InlineKeyboardButton(
         text='На аукцион',
         callback_data=f'for_auction {lot_number}'

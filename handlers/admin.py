@@ -105,7 +105,6 @@ async def remove_lot(callback: types.CallbackQuery):
         data_base.remove_some_rows(lot_category, 'lot_number', lot_number)
         data_base.remove_some_rows('winner', 'lot_number', lot_number)
         data_base.remove_some_rows('bidders', 'lot_number', lot_number)
-        # Проверить удаление несуществующих bidders и winner
 
 
 def register_admin_handlers(dp: Dispatcher):

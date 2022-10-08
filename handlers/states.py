@@ -8,6 +8,20 @@ from my_lib.different_funcs import convert_list_to_string
 from keyboards.admin_kb import make_admin_kb, make_cancel_kb, make_stop_kb
 
 
+def save_lot(data):
+    other_photos = convert_list_to_string(data['addit_media']["other_photos"])
+    videos = convert_list_to_string(data['addit_media']["videos"])
+
+    lot_tuple = (
+        int(data['lot_number']), int(data['auction_time']),
+        int(data['start_price']), None, data['main_photo'],
+        other_photos, videos, data['description'], None, None
+    )
+
+    with LiteBase('data_base.db') as data_base:
+        data_base.save_row('ready_lots', *lot_tuple)
+
+
 class FSMAdmin(StatesGroup):
     admin_ids = [CHAT_OWNER_ID]
 
@@ -98,7 +112,7 @@ async def load_main_photo(message: types.Message, state: FSMContext):
         )
 
 
-# @dp.message_handler(content_types=['photo', 'video'], state=FSMAdmin().additional_media)
+# @dp.message_handler(content_types=['photo', 'video'], state=FSMAdmin.additional_media)
 async def load_additional_media(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
 
@@ -132,17 +146,7 @@ async def load_description(message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['description'] = message.text
 
-            other_photos = convert_list_to_string(data['addit_media']["other_photos"])
-            videos = convert_list_to_string(data['addit_media']["videos"])
-
-            lot_tuple = (
-                int(data['lot_number']), int(data['auction_time']),
-                int(data['start_price']), None, data['main_photo'],
-                other_photos, videos, data['description'], None, None
-            )
-
-            with LiteBase('data_base.db') as data_base:
-                data_base.save_row('ready_lots', *lot_tuple)
+        save_lot(data)
 
         await state.finish()
 

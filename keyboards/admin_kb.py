@@ -67,7 +67,7 @@ def make_lot_management_kb(lot_category, lot_number):
 
     to_ready_btn = InlineKeyboardButton(
         text='В готовые',
-        callback_data=f'to_ready {lot_number}'
+        callback_data=f'to_ready {lot_category} {lot_number}'
     )
 
     remove_btn = InlineKeyboardButton(
@@ -80,10 +80,7 @@ def make_lot_management_kb(lot_category, lot_number):
     if lot_category == 'ready_lots':
         lot_management_keyboard.row(for_auction_btn, remove_btn)
 
-    elif lot_category == 'sold_lots':
-        lot_management_keyboard.row(to_ready_btn, remove_btn)
-
     else:
-        lot_management_keyboard.add(remove_btn)
+        lot_management_keyboard.row(to_ready_btn, remove_btn)
 
     return lot_management_keyboard

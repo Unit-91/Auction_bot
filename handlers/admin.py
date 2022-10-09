@@ -6,6 +6,7 @@ from keyboards.admin_kb import make_categories_kb, make_admin_kb, make_more_lot_
 from misc.others import get_lot_args, conv_bidders_to_str
 from misc.auction_lot import AuctionLot
 from my_lib.lite_base import LiteBase
+# from my_lib.different_funcs import printf
 
 
 async def show_lot_numbers(message, lot_category):
@@ -27,9 +28,13 @@ def compose_lot_text(lot, lot_category):
     if lot_category == 'ready_lots':
         lot.create_text()
 
-    if lot_category == 'reffled_lots':
+    if lot_category == 'raffled_lots':
         bidders_str = conv_bidders_to_str(lot.bidders[::-1])
-        lot.create_text("lot number", bidders_str)
+
+        if bidders_str:
+            lot.create_text("lot number", bidders_str)
+        else:
+            lot.create_text()
 
     if lot_category == 'sold_lots':
         for index, bidder in enumerate(lot.bidders[::-1]):
@@ -96,10 +101,33 @@ async def show_more_lot_info(callback: types.CallbackQuery):
     )
 
 
+# @dp.callback_query_handler(Text(startswith='to_ready'))
+async def move_to_ready(callback: types.CallbackQuery):
+    lot_category = callback.data.split()[1]
+    lot_number = int(callback.data.split()[2])
+
+    await bot.edit_message_reply_markup(callback.message.chat.id, callback.message.message_id)
+
+    with LiteBase('data_base.db') as data_base:
+        lot_data = data_base.load_row(lot_category, 'lot_number', lot_number)
+
+        if lot_data:
+            data_base.save_row('ready_lots', *lot_data)
+            data_base.update_column('ready_lots', 'end_time', None, 'lot_number', lot_number)
+            data_base.update_column('ready_lots', 'message_id', None, 'lot_number', lot_number)
+            data_base.update_column('ready_lots', 'current_price', None, 'lot_number', lot_number)
+
+            data_base.remove_some_rows(lot_category, 'lot_number', lot_number)
+            data_base.remove_some_rows('bidders', 'lot_number', lot_number)
+            data_base.remove_some_rows('winner', 'lot_number', lot_number)
+
+
 # @dp.callback_query_handler(Text(startswith='remove'))
 async def remove_lot(callback: types.CallbackQuery):
     lot_category = callback.data.split()[1]
     lot_number = int(callback.data.split()[2])
+
+    await bot.edit_message_reply_markup(callback.message.chat.id, callback.message.message_id)
 
     with LiteBase('data_base.db') as data_base:
         data_base.remove_some_rows(lot_category, 'lot_number', lot_number)
@@ -114,4 +142,5 @@ def register_admin_handlers(dp: Dispatcher):
     dp.register_message_handler(show_raffled_lots, commands=['Выставленные'])
     dp.register_message_handler(show_sold_lots, commands=['Проданные'])
     dp.register_callback_query_handler(show_more_lot_info, Text(startswith='more'))
+    dp.register_callback_query_handler(move_to_ready, Text(startswith='to_ready'))
     dp.register_callback_query_handler(remove_lot, Text(startswith='remove'))

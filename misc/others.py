@@ -3,6 +3,10 @@ from my_lib.emojis import gold_medal_emoji, silver_medal_emoji, bronze_medal_emo
 
 
 def get_lot_args(lot_category, lot_number):
+    lot_args = None
+    bidders = None
+    winner = None
+
     with LiteBase('data_base.db') as data_base:
         lot_data = data_base.load_row(lot_category, 'lot_number', lot_number)
         bidders_data = data_base.load_some_rows('bidders', 'lot_number', lot_number)
@@ -23,6 +27,7 @@ def get_lot_args(lot_category, lot_number):
             for bidder in bidders
         ]
 
+    if winner_data:
         winner = winner_data[1:]
 
         winner = {
@@ -32,14 +37,11 @@ def get_lot_args(lot_category, lot_number):
             "id": winner[3],
             "price": winner[4]
         }
-    else:
-        bidders = []
-        winner = {}
 
-    lot_args = list(lot_data)
-
-    lot_args.insert(8, bidders)
-    lot_args.insert(9, winner)
+    if lot_data:
+        lot_args = list(lot_data)
+        lot_args.insert(8, bidders)
+        lot_args.insert(9, winner)
 
     return lot_args
 

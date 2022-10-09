@@ -1,5 +1,5 @@
 from aiogram import types, Dispatcher
-from create_bot import bot
+from create_bot import bot, CHAT_ID
 from aiogram.dispatcher.filters import Text
 from handlers.states import FSMAdmin
 from keyboards.admin_kb import make_categories_kb, make_admin_kb, make_more_lot_info_kb, make_lot_management_kb
@@ -135,6 +135,26 @@ async def remove_lot(callback: types.CallbackQuery):
         data_base.remove_some_rows('bidders', 'lot_number', lot_number)
 
 
+# @dp.callback_query_handler(Text(startswith='for_auction'))
+async def send_lot_for_auction(callback: types.CallbackQuery):
+    lot_category = callback.data.split()[1]
+    lot_number = int(callback.data.split()[2])
+
+    lot_args = get_lot_args(lot_category, lot_number)
+
+    if lot_args:
+        lot = AuctionLot(*lot_args)
+
+        await bot.edit_message_reply_markup(callback.message.chat.id, callback.message.message_id)
+
+        photo = await bot.send_photo(
+            CHAT_ID,
+            lot.main_photo,
+            caption=lot.text,
+            reply_markup=
+        )
+
+
 def register_admin_handlers(dp: Dispatcher):
     dp.register_message_handler(show_lot_categories, commands=['Показать_лоты'])
     dp.register_message_handler(go_back, commands=['Назад'])
@@ -144,3 +164,4 @@ def register_admin_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(show_more_lot_info, Text(startswith='more'))
     dp.register_callback_query_handler(move_to_ready, Text(startswith='to_ready'))
     dp.register_callback_query_handler(remove_lot, Text(startswith='remove'))
+    dp.register_callback_query_handler(send_lot_for_auction, Text(startswith='for_auction'))

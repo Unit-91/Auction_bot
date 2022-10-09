@@ -14,7 +14,12 @@ class AuctionLot():
         self.number = lot_number
         self.auction_time = auction_time
         self.start_price = start_price
-        self.current_price = start_price
+
+        if current_price:
+            self.current_price = current_price
+        else:
+            self.current_price = start_price
+
         self.main_photo = main_photo
         self.other_photos = other_photos
         self.videos = videos

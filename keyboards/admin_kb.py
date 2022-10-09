@@ -62,7 +62,7 @@ def make_more_lot_info_kb(lot_category, lot_number):
 def make_lot_management_kb(lot_category, lot_number):
     for_auction_btn = InlineKeyboardButton(
         text='На аукцион',
-        callback_data=f'for_auction {lot_number}'
+        callback_data=f'for_auction {lot_category} {lot_number}'
     )
 
     to_ready_btn = InlineKeyboardButton(

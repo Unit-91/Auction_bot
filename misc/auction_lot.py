@@ -55,7 +55,7 @@ class AuctionLot():
 
         return self.text
 
-    async def start_lot_timer(self, seconds):
+    async def start_timer(self, seconds):
         await sleep(seconds)
 
     async def start_confirm_timer(self, seconds):

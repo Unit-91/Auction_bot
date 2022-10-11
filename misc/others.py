@@ -59,5 +59,5 @@ def conv_bidders_to_str(bidders: list):
     return bidders_str[:-1]
 
 
-def conv_winner_to_str(winner: tuple):
-    pass
+def conv_winner_to_str(winner: dict):
+    return f'{gold_medal_emoji} {winner["price"]} ₽ {winner["first_name"][:3]}**'

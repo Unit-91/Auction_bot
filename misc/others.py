@@ -119,7 +119,12 @@ def compose_lot_text(lot, lot_category):
 async def delete_raffled_lot_message(data_base, lot_category, lot_number):
     if lot_category == 'raffled_lots':
         message_id = data_base.load_column(lot_category, 'message_id', 'lot_number', lot_number)
-        await bot.delete_message(CHAT_ID, message_id)
+
+        try:
+            await bot.delete_message(CHAT_ID, message_id)
+
+        except Exception as error:
+            print('error:', error)
 
 
 def update_lot_from_database(data_base, lot_category, lot_number):

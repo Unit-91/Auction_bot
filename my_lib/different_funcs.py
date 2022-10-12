@@ -12,9 +12,9 @@ def console_clear():
 
 
 def conv_to_pref_format(seconds):
-    days = seconds // (24 * 3600)
+    # days = seconds // (24 * 3600)
 
-    seconds = seconds % (24 * 3600)
+    # seconds = seconds % (24 * 3600)
     hours = int(seconds // 3600)
 
     seconds %= 3600
@@ -22,7 +22,7 @@ def conv_to_pref_format(seconds):
 
     seconds %= 60
 
-    return (days, hours, minutes, seconds)
+    return (hours, minutes, seconds)
 
 
 def get_hours_ending(hours):

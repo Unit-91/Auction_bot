@@ -28,3 +28,20 @@ def make_auction_keyboard(lot_number):
     auction_keyboard.add(detail_info).add(make_bid_btn).row(time_left_btn, warning_btn)
 
     return auction_keyboard
+
+
+def make_confirm_keyboard(lot_number):
+    no_btn = InlineKeyboardButton(
+        text='НЕТ',
+        callback_data=f'no {lot_number}'
+    )
+
+    yes_btn = InlineKeyboardButton(
+        text='ДА',
+        callback_data=f'yes {lot_number}'
+    )
+
+    confirm_keyboard = InlineKeyboardMarkup()
+    confirm_keyboard.row(no_btn, yes_btn)
+
+    return confirm_keyboard

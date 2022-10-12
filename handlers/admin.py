@@ -105,7 +105,7 @@ async def send_lot_for_auction(callback: types.CallbackQuery):
     if lot_args:
         photo = await put_a_lot_up_for_auction(lot, chat_id, message_id)
 
-        await lot.start_timer(20)
+        await lot.start_timer(40)
 
         if lot in AuctionLot.exhibited_lots:
             await complete_auction_lot(lot, photo)

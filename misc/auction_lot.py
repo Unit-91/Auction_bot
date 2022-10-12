@@ -61,6 +61,11 @@ class AuctionLot():
         await sleep(seconds)
 
     def get_time_left(self):
-        time_left = conv_to_pref_format(self.end_time - int(time()))
+        hours, minutes, seconds = conv_to_pref_format(self.end_time - int(time()))
+
+        if hours:
+            time_left = f'{hours}ч. {minutes} мин.'
+        else:
+            time_left = f'{minutes} мин.'
 
         return time_left

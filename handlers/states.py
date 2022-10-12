@@ -9,13 +9,12 @@ from keyboards.admin_kb import make_admin_kb, make_cancel_kb, make_stop_kb
 
 
 def save_lot(data):
-    other_photos = convert_list_to_string(data['addit_media']["other_photos"])
-    videos = convert_list_to_string(data['addit_media']["videos"])
+    addit_media = convert_list_to_string(data['addit_media'])
 
     lot_tuple = (
         int(data['lot_number']), int(data['auction_time']),
         int(data['start_price']), None, data['main_photo'],
-        other_photos, videos, data['description'], None, None
+        addit_media, data['description'], None, None
     )
 
     with LiteBase('data_base.db') as data_base:
@@ -69,10 +68,7 @@ async def load_lot_number(message: types.Message, state: FSMContext):
     if message.from_user.id in FSMAdmin.admin_ids:
         async with state.proxy() as data:
             data['lot_number'] = message.text
-            data['addit_media'] = {
-                "other_photos": [],
-                "videos": []
-            }
+            data['addit_media'] = []
 
         await FSMAdmin.next()
         await message.reply("Загрузи время аукциона")
@@ -118,14 +114,13 @@ async def load_additional_media(message: types.Message, state: FSMContext):
 
         async with state.proxy() as data:
             if message.content_type == 'photo':
-                data['addit_media']["other_photos"].append(message.photo[-1].file_id)
+                data['addit_media'].append('photo_' + message.photo[-1].file_id)
             else:
-                data['addit_media']["videos"].append(message.video.file_id)
+                data['addit_media'].append('video_' + message.video.file_id)
 
-            photos_len = len(data['addit_media']["other_photos"])
-            videos_len = len(data['addit_media']["videos"])
+            media_len = len(data['addit_media'])
 
-        await message.reply(photos_len + videos_len)
+        await message.reply(media_len)
 
 
 # @dp.message_handler(commands=['Хватит'], state=FSMAdmin.additional_media)

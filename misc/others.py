@@ -53,8 +53,11 @@ def get_lot_args(lot_category, lot_number):
 
     if lot_data:
         lot_args = list(lot_data)
-        lot_args.insert(8, bidders)
-        lot_args.insert(9, winner)
+        addit_media = lot_data[5].split(',')
+
+        lot_args[5] = addit_media
+        lot_args.insert(7, bidders)
+        lot_args.insert(8, winner)
 
     return lot_args
 

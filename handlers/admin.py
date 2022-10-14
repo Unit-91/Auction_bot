@@ -53,14 +53,16 @@ async def show_more_lot_info(callback: types.CallbackQuery):
     lot_category, lot_number, chat_id, message_id = get_data_for_lot_management(callback)
 
     lot_args = get_lot_args(lot_category, lot_number)
-    lot = AuctionLot(*lot_args)
 
-    await bot.send_photo(
-        chat_id,
-        photo=lot.main_photo,
-        caption=compose_lot_text(lot, lot_category),
-        reply_markup=make_lot_management_kb(lot_category, lot_number)
-    )
+    if lot_args:
+        lot = AuctionLot(*lot_args)
+
+        await bot.send_photo(
+            chat_id,
+            photo=lot.main_photo,
+            caption=compose_lot_text(lot, lot_category),
+            reply_markup=make_lot_management_kb(lot_category, lot_number)
+        )
 
 
 # @dp.callback_query_handler(Text(startswith='to_ready'))

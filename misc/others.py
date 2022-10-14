@@ -17,7 +17,7 @@ def get_data_for_lot_management(callback):
 
 def get_lot_args(lot_category, lot_number):
     lot_args = None
-    bidders = None
+    bidders = []
     winner = None
 
     with LiteBase('data_base.db') as data_base:

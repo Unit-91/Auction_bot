@@ -2,6 +2,8 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Text
 from misc.auction_lot import AuctionLot
 from keyboards.client_kb import make_confirm_keyboard, make_auction_keyboard
+from my_lib.lite_base import LiteBase
+from misc.others import conv_bidders_to_str
 
 
 # @dp.callback_query_handler(Text(startswith='+2000'))
@@ -80,8 +82,55 @@ async def cancel_the_bid(callback: types.CallbackQuery):
                 )
 
 
+# @dp.callback_query_handler(Text(startswith='yes'))
+async def confirm_the_bid(callback: types.CallbackQuery):
+    lot_number = int(callback.data.split()[1])
+    user_id = callback.from_user.id
+    first_name = callback.from_user.first_name
+    last_name = callback.from_user.last_name
+    user_name = callback.from_user.username
+
+    for lot in AuctionLot.exhibited_lots:
+        if lot_number == lot.number:
+            if lot.applicant_id == user_id:
+                lot.current_price += 2000
+                lot.applicant_id = None
+
+                lot.bidders.append({
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "user_name": user_name,
+                    "id": user_id,
+                    "price": lot.current_price
+                })
+
+                for bidder in lot.bidders:
+                    if bidder["id"] == user_id:
+                        lot.bidders.remove(bidder)
+
+                with LiteBase('data_base.db') as data_base:
+                    data_base.save_row(
+                        'bidders', lot_number, first_name,
+                        last_name, user_name, user_id, lot.current_price
+                    )
+
+                await callback.message.edit_caption(
+                    caption=lot.create_text(
+                        "lot number",
+                        conv_bidders_to_str(lot.bidders[::-1])
+                    ),
+                    reply_markup=make_auction_keyboard(lot_number)
+                )
+            else:
+                await callback.answer(
+                    'Подождите пока другой игрок закончит совершение ставки',
+                    show_alert=True
+                )
+
+
 def register_client_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(make_bid, Text(startswith='+2000'))
     dp.register_callback_query_handler(show_remaining_time, Text(startswith='time_left'))
     dp.register_callback_query_handler(show_warning, text='warning')
     dp.register_callback_query_handler(cancel_the_bid, Text(startswith='no'))
+    dp.register_callback_query_handler(confirm_the_bid, Text(startswith='yes'))

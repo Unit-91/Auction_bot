@@ -23,6 +23,7 @@ def save_lot(data):
 
 class FSMAdmin(StatesGroup):
     admin_ids = [CHAT_OWNER_ID]
+    media_count = 0
 
     lot_number = State()
     auction_time = State()
@@ -103,7 +104,7 @@ async def load_main_photo(message: types.Message, state: FSMContext):
         await FSMAdmin.next()
         await bot.send_message(
             message.from_user.id,
-            'Загрузи дополнительные фото и видео. Нажми хватит если загрузил все',
+            'Загрузи дополнительные фото и видео(до 10-и медиафайлов). Нажми хватит если загрузил все',
             reply_markup=make_stop_kb()
         )
 
@@ -122,6 +123,19 @@ async def load_additional_media(message: types.Message, state: FSMContext):
 
         await message.reply(media_len)
 
+        FSMAdmin.media_count += 1
+
+        if FSMAdmin.media_count >= 10:
+            await FSMAdmin.next()
+
+            await bot.send_message(
+                message.from_user.id,
+                'Загружено 10 медиафайлов. Загрузи полное описание',
+                reply_markup=make_cancel_kb()
+            )
+
+            FSMAdmin.media_count = 0
+
 
 # @dp.message_handler(commands=['Хватит'], state=FSMAdmin.additional_media)
 async def stop_load_additional_media(message: types.Message, state: FSMContext):
@@ -133,6 +147,8 @@ async def stop_load_additional_media(message: types.Message, state: FSMContext):
             'Загрузи полное описание',
             reply_markup=make_cancel_kb()
         )
+
+        FSMAdmin.media_count = 0
 
 
 # @dp.message_handler(state=FSMAdmin.description)

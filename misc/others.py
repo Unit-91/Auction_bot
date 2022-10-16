@@ -163,16 +163,18 @@ async def put_a_lot_up_for_auction(lot, chat_id, message_id):
         reply_markup=make_auction_keyboard(lot.number)
     )
 
+    photo_id = photo.message_id
+
     with LiteBase('data_base.db') as data_base:
         data_base.update_column('raffled_lots', 'end_time', lot.end_time, 'lot_number', lot.number)
         data_base.update_column('raffled_lots', 'message_id', photo.message_id, 'lot_number', lot.number)
 
     AuctionLot.exhibited_lots.append(lot)
 
-    return photo
+    return photo_id
 
 
-async def complete_auction_lot(lot, photo):
+async def complete_auction_lot(lot, message_id):
     lot.applicant_id = None
 
     with LiteBase('data_base.db') as data_base:
@@ -195,6 +197,10 @@ async def complete_auction_lot(lot, photo):
         else:
             data_base.save_row('ready_lots', *lot_data)
 
-        await photo.edit_caption(lot.text)
+    await bot.edit_message_caption(
+        chat_id=CHAT_ID,
+        message_id=message_id,
+        caption=lot.text,
+    )
 
-        remove_lot_from_memory(lot.number)
+    remove_lot_from_memory(lot.number)

@@ -31,7 +31,10 @@ class AuctionLot():
         self.pressing_sequence_num = 0
         self.applicant_id = None
 
-        self.strings = {
+        self.text = ''
+
+    def create_text(self, position=None, text_insert=None):
+        strings = {
             "auction duration": (
                 f'{exclam_emoji} Продолжительность аукциона - '
                 f'{self.auction_time} {get_hours_ending(self.auction_time)} {exclam_emoji}'
@@ -43,10 +46,7 @@ class AuctionLot():
 
         self.text = ''
 
-    def create_text(self, position=None, text_insert=None):
-        self.text = ''
-
-        for key, value in self.strings.items():
+        for key, value in strings.items():
             self.text += f'{value}\n'
 
             if key == position:

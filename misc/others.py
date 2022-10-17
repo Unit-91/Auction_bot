@@ -178,8 +178,6 @@ async def complete_auction_lot(lot, message_id):
     lot.applicant_id = None
 
     with LiteBase('data_base.db') as data_base:
-        update_lot_from_database(data_base, 'raffled_lots', lot.number)
-
         lot_data = data_base.load_row('raffled_lots', 'lot_number', lot.number)
         data_base.remove_some_rows('raffled_lots', 'lot_number', lot.number)
 
@@ -196,6 +194,7 @@ async def complete_auction_lot(lot, message_id):
             )
         else:
             data_base.save_row('ready_lots', *lot_data)
+            update_lot_from_database(data_base, 'ready_lots', lot.number)
 
     await bot.edit_message_caption(
         chat_id=CHAT_ID,

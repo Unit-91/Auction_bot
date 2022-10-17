@@ -113,6 +113,10 @@ async def confirm_the_bid(callback: types.CallbackQuery):
                 lot.applicant_id = None
 
                 with LiteBase('data_base.db') as data_base:
+                    data_base.update_column(
+                        'raffled_lots', 'current_price',
+                        lot.current_price, 'lot_number', lot_number
+                    )
                     data_base.save_row(
                         'bidders', lot_number, first_name,
                         last_name, user_name, user_id, lot.current_price

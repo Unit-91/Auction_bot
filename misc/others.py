@@ -4,6 +4,8 @@ from my_lib.emojis import gold_medal_emoji, silver_medal_emoji, bronze_medal_emo
 from keyboards.admin_kb import make_more_lot_info_kb
 from keyboards.client_kb import make_auction_keyboard
 from misc.auction_lot import AuctionLot
+from time import time
+import asyncio
 
 
 def get_data_for_lot_management(callback):
@@ -203,3 +205,45 @@ async def complete_auction_lot(lot, message_id):
     )
 
     remove_lot_from_memory(lot.number)
+
+
+async def restore_exhibited_lot(lot_args):
+    lot = AuctionLot(*lot_args)
+
+    if lot.end_time > int(time()):
+        if lot.bidders:
+            lot.create_text("lot number", conv_bidders_to_str(lot.bidders[::-1]))
+        else:
+            lot.create_text()
+
+        AuctionLot.exhibited_lots.append(lot)
+
+        try:
+            await bot.edit_message_caption(
+                chat_id=CHAT_ID,
+                message_id=lot.message_id,
+                caption=lot.text,
+                reply_markup=make_auction_keyboard(lot.number)
+            )
+            print('Возобновление работы')
+
+        except Exception:
+            print('Возобновление работы')
+
+        await lot.start_timer(lot.end_time - int(time()))
+
+        await complete_auction_lot(lot, lot.message_id)
+
+    else:
+        await complete_auction_lot(lot, lot.message_id)
+
+
+def restore_bot():
+    with LiteBase('data_base.db') as data_base:
+        raffled_lot_numbers = data_base.load_all_columns('lot_number', 'raffled_lots')
+
+    for number in raffled_lot_numbers:
+        lot_args = get_lot_args('raffled_lots', number)
+
+        task = asyncio.create_task(restore_exhibited_lot(lot_args))
+        asyncio.gather(task)
